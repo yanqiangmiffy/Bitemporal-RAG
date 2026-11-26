@@ -1,0 +1,9 @@
+# DeepSeek API (OpenAI-compatible). export DEEPSEEK_API_KEY=sk-...
+llm:
+  provider: deepseek
+  base_url: https://api.deepseek.com
+  api_key_env: DEEPSEEK_API_KEY
+  extractor_model: deepseek-chat
+  classifier_model: deepseek-chat
+  generator_model: deepseek-chat
+  temperature: 0.0

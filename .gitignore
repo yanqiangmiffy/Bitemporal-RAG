@@ -221,3 +221,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local benchmark inputs and outputs
+/datasets/
+/data/
+/cache/
+/logs/
+/models/
+*.sqlite
+*.sqlite-*
+*.faiss
+*.npy
+*.npz
+*.safetensors
+
+# Local credentials and OS metadata
+.env.*
+*.key
+*.pem
+.DS_Store
+._*

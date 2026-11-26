@@ -1,0 +1,9 @@
+# OpenAI API. export OPENAI_API_KEY=sk-...
+llm:
+  provider: openai
+  base_url: https://api.openai.com/v1
+  api_key_env: OPENAI_API_KEY
+  extractor_model: gpt-4o-mini
+  classifier_model: gpt-4o-mini
+  generator_model: gpt-4o
+  temperature: 0.0

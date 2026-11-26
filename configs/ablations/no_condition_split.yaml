@@ -1,0 +1,7 @@
+# Ablation: drop the partial-coverage condition split. Expected to collapse on Unch
+# (unchanged fields in a revised document get clobbered).
+method:
+  name: asof
+  use_visible_time: true
+  use_condition_split: false
+  use_exact_id_match: true

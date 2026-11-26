@@ -1,0 +1,6 @@
+# Ablation: As-of (full) — all mechanisms on. Maps to the paper's "Flim (full)" row.
+method:
+  name: asof
+  use_visible_time: true
+  use_condition_split: true
+  use_exact_id_match: true

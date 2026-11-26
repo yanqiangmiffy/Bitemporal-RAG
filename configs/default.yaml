@@ -1,0 +1,62 @@
+# Default configuration for As-of Retrieval experiments.
+# Override any block with  --config configs/default.yaml --override configs/providers/deepseek.yaml
+# or merge an ablation variant from configs/ablations/*.yaml.
+
+paths:
+  datasets: datasets               # raw collected sources (relative to repo root)
+  canonical: data/canonical        # unified Notice/Fact/Question benchmark (output of prepare)
+  index: data/index                # dense/sparse index artifacts (GPU step)
+  runs: data/runs                  # per-experiment result json
+  cache: cache/llm_cache.sqlite    # LLM + embedding reply cache (keyed by request)
+
+# Domains to process. campus is an already-built benchmark; the rest use the
+# extract/annotate pipeline. See src/asof/data/loaders/.
+domains:
+  - beijing_housing
+  - safe_fx
+  - python_pathlib
+  - cn_state_council
+  - campus
+
+llm:
+  provider: deepseek               # see configs/providers/*.yaml
+  base_url: https://api.deepseek.com
+  api_key_env: DEEPSEEK_API_KEY
+  extractor_model: deepseek-chat   # notice -> candidate facts
+  classifier_model: deepseek-chat  # (new fact, candidates) -> revision type
+  generator_model: deepseek-chat   # grounded answer
+  temperature: 0.0
+  max_tokens: 2048
+  max_retries: 5
+  cache: true                      # replay from sqlite cache when request is identical
+
+embeddings:
+  model: BAAI/bge-large-zh-v1.5
+  device: cuda                     # 'cpu' on the Mac; 'cuda' on the GPU server
+  batch_size: 64
+  normalize: true
+  # bge-zh expects a retrieval instruction prefix on the QUERY side only:
+  query_instruction: "为这个句子生成表示以用于检索相关文章："
+
+retrieval:
+  bm25: true
+  dense: true
+  fusion: rrf                      # reciprocal rank fusion of bm25 + dense
+  rrf_k: 60
+  top_k_candidates: 50
+  rerank: true
+  reranker_model: BAAI/bge-reranker-large
+  top_k_final: 8
+
+method:
+  name: asof
+  # As-of knobs (ablations flip these):
+  use_visible_time: true           # bitemporal visible-axis filtering (Eq. 2)
+  use_condition_split: true        # partial-coverage condition split
+  use_exact_id_match: true         # exact doc/clause id tier in LocateImpact
+  locate_vector_topk: 20           # vector-recall fallback size in LocateImpact
+
+eval:
+  question_types: [Pre, Post, Unch, Win, Inap, Unseen]
+  joint: true                      # an item is correct iff answer AND source span are correct
+  seed: 20261125

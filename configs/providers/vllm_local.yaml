@@ -1,0 +1,42 @@
+# A800 server: everything local, no external API.
+# 1) serve the LLM with vLLM (OpenAI-compatible):
+#      python -m vllm.entrypoints.openai.api_server \
+#          --model Qwen/Qwen3-32B --port 8000 --dtype bfloat16 \
+#          --max-model-len 32768 --gpu-memory-utilization 0.92
+#    (use an AWQ/GPTQ build if 80 GB is tight; VLLM_API_KEY may be any token.)
+# 2) embeddings + reranker run locally on the GPU (sentence-transformers).
+#    pip install -e ".[gpu,llm]"   # torch, sentence-transformers, faiss-cpu
+#
+# To use the hosted API for embeddings/reranker instead, add
+# configs/providers/hybrid_rerank.yaml AFTER this file on the --override list.
+llm:
+  provider: vllm
+  base_url: http://localhost:8000/v1
+  api_key_env: VLLM_API_KEY
+  extractor_model: Qwen/Qwen3-32B
+  classifier_model: Qwen/Qwen3-32B
+  generator_model: Qwen/Qwen3-32B
+  temperature: 0.0
+  max_tokens: 2048
+  max_retries: 5
+  cache: true
+  extra_body:                     # Qwen3 reasoning trace off (vLLM chat template)
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  bm25: true
+  dense: true
+  rerank: true
+  reranker_model: BAAI/bge-reranker-v2-m3
+  rrf_k: 60
+  top_k_candidates: 50
+  top_k_final: 8
+
+embeddings:
+  model: BAAI/bge-m3            # local SentenceTransformer on the GPU
+  device: cuda
+  batch_size: 64
+  normalize: true
+  query_instruction: ""
+  # local backend: no api_base/provider -> uses sentence-transformers

@@ -1,0 +1,20 @@
+# Core (light) — installs and runs the pure-Python pipeline anywhere, incl. Mac.
+pyyaml>=6.0
+numpy>=1.24
+tqdm>=4.66
+orjson>=3.9
+python-dateutil>=2.9
+rank-bm25>=0.2.2
+
+# LLM API clients (OpenAI-compatible endpoint covers both DeepSeek and vLLM).
+openai>=1.40
+tenacity>=8.2
+# anthropic>=0.34        # uncomment if you also use the Claude provider
+
+# --- GPU server only (uncomment on the server; see README) ---
+# torch>=2.1
+# sentence-transformers>=3.0
+# FlagEmbedding>=1.2
+# faiss-cpu>=1.7.4       # or faiss-gpu
+# transformers>=4.44
+# accelerate>=0.30

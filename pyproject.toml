@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asof-rag"
+version = "0.1.0"
+description = "Bitemporal Retrieval-Augmented Generation over Evolving Regulations via Incremental Fact Indexing"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+# Core dependencies are light so the pipeline installs and the pure-Python
+# parts (bitemporal store, Flim, loaders, eval, tables) run anywhere, incl. a Mac.
+dependencies = [
+    "pyyaml>=6.0",
+    "numpy>=1.24",
+    "tqdm>=4.66",
+    "orjson>=3.9",
+    "python-dateutil>=2.9",
+    "rank-bm25>=0.2.2",
+]
+
+[project.optional-dependencies]
+# Heavy, GPU-side extras. Install on the GPU server:  pip install -e ".[gpu]"
+gpu = [
+    "torch>=2.1",
+    "sentence-transformers>=3.0",
+    "FlagEmbedding>=1.2",
+    "faiss-cpu>=1.7.4",       # swap for faiss-gpu on the server if available
+    "transformers>=4.44",
+    "accelerate>=0.30",
+]
+# LLM API clients (OpenAI-compatible covers DeepSeek + vLLM; anthropic optional).
+llm = [
+    "openai>=1.40",
+    "anthropic>=0.34",
+    "tenacity>=8.2",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+asof-prepare = "asof.cli:prepare_data_main"
+asof-build-index = "asof.cli:build_index_main"
+asof-run = "asof.cli:run_experiment_main"
+asof-ablation = "asof.cli:run_ablation_main"
+asof-tables = "asof.cli:make_tables_main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+# BLE001/S110: deliberate broad excepts for robustness (LLM retries, optional
+# deps, date parsing). C408: dict() kwargs call is intentional for readability.
+ignore = ["BLE001", "S110", "C408"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
